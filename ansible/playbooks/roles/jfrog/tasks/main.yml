@@ -1,0 +1,45 @@
+---
+- name: Kill and remove jfrog container if it's running
+  command: docker rm -f {{ jfrog_container_name }}
+  ignore_errors: yes
+
+- name: Create directory for jfrog project
+  file:
+    path: /tools/jfrog
+    state: directory
+    mode: '0755'
+
+- name: Create directory for jfrog data
+  file:
+    path: /data/jfrog/artifactory_data
+    state: directory
+    mode: '0777'
+
+- name: Copy docker-compose.yml for jfrog to target machine
+  template:
+    src: docker-compose.yml.j2  
+    dest: /tools/jfrog/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create docker network if it does not exist
+  docker_network:
+    name: PrviNetwork
+    state: present
+  ignore_errors: true
+
+- name: Run Docker Compose to deploy jfrog
+  command:
+    cmd: "docker-compose -f /tools/jfrog/docker-compose.yml up -d"
+    chdir: /tools/jfrog
+
+- name: Check if jfrog container is running
+  command: docker ps -q -f name=jfrog
+  register: jfrog_container
+  failed_when: jfrog_container.stdout == ""
+  changed_when: false
+
+- name: Display jfrog container status
+  debug:
+    msg: "jfrog container is up and running."

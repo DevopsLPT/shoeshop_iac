@@ -1,0 +1,8 @@
+- name: Install Vault Server
+  hosts: vault-server
+  become: yes
+  roles:
+    - teleport
+    - docker
+    - portainer-agent
+    - vault

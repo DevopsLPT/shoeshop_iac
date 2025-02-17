@@ -1,0 +1,53 @@
+- name: Ensure required packages are installed
+  apt:
+    name: ["wget", "tar", "jq"]
+    state: present
+    update_cache: yes
+
+- name: Download latest Harbor release
+  ansible.builtin.shell: |
+    cd /tmp
+    curl -s https://api.github.com/repos/goharbor/harbor/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep '.tgz$' | wget -i -
+  args:
+    executable: /bin/bash
+
+- name: Extract Harbor archive
+  shell: |
+    mkdir -p {{ harbor_install_dir }}
+    tar xvzf /tmp/harbor-offline-installer*.tgz -C {{ harbor_install_dir }} --strip-components=1
+  args:
+    executable: /bin/bash
+
+- name: Copy Harbor configuration file
+  template:
+    src: harbor.yml.j2  
+    dest: "{{ harbor_install_dir }}/harbor.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create directory for certs
+  file:
+    path: /etc/letsencrypt/live/harbor.lptdevops.website
+    state: directory
+    mode: '0755'
+
+- name: Copy fullchain.pem
+  copy:
+    src: "/tmp/harbor/fullchain.pem"
+    dest: "/etc/letsencrypt/live/harbor.lptdevops.website/fullchain.pem"
+
+- name: Copy privkey.pem
+  copy:
+    src: "/tmp/harbor/privkey.pem"
+    dest: "/etc/letsencrypt/live/harbor.lptdevops.website/privkey.pem"
+
+- name: Prepare Harbor
+  shell: ./prepare
+  args:
+    chdir: "{{ harbor_install_dir }}"
+
+- name: Install Harbor
+  shell: ./install.sh
+  args:
+    chdir: "{{ harbor_install_dir }}"

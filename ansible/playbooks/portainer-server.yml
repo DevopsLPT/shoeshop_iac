@@ -1,0 +1,7 @@
+- name: Install Portainer Server
+  hosts: portainer-server
+  become: yes
+  roles:
+    - teleport
+    - docker
+    - portainer

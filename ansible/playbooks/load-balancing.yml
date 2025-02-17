@@ -1,0 +1,13 @@
+- name: Install load-balancing Server
+  hosts: load-balancing
+  become: yes
+  roles:
+    - teleport
+    - nginx
+    - docker
+    - role: github-runner
+      vars:
+        github_repo_url: "https://github.com/DevopsLPT"
+        runner_token: "A4TCJZ6ZDBORXWVBZOCWSZLHVC7PS"   
+        label: "build"
+        

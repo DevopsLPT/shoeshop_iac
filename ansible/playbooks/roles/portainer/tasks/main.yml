@@ -1,0 +1,45 @@
+---
+- name: Kill and remove portainer container if it's running
+  command: docker rm -f {{ portainer_container_name }}
+  ignore_errors: yes
+
+- name: Create directory for portainer project
+  file:
+    path: /tools/portainer
+    state: directory
+    mode: '0755'
+
+- name: Create directory for portainer data
+  file:
+    path: /data/portainer/portainer-data
+    state: directory
+    mode: '0777'
+
+- name: Copy docker-compose.yml for portainer to target machine
+  template:
+    src: docker-compose.yml.j2  
+    dest: /tools/portainer/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create docker network if it does not exist
+  docker_network:
+    name: PrviNetwork
+    state: present
+  ignore_errors: true
+
+- name: Run Docker Compose to deploy portainer
+  command:
+    cmd: "docker-compose -f /tools/portainer/docker-compose.yml up -d"
+    chdir: /tools/portainer
+
+- name: Check if portainer container is running
+  command: docker ps -q -f name=portainer
+  register: portainer_container
+  failed_when: portainer_container.stdout == ""
+  changed_when: false
+
+- name: Display portainer container status
+  debug:
+    msg: "portainer container is up and running."

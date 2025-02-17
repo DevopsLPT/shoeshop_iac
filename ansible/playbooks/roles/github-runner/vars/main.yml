@@ -1,0 +1,11 @@
+# vars/main.yml
+
+# Thông tin về GitHub Actions Runner
+runner_version: "2.322.0"  # Thay thế bằng phiên bản mới nhất nếu cần
+runner_checksum: "b13b784808359f31bc79b08a191f5f83757852957dd8fe3dbfcc38202ccf5768"  # Kiểm tra checksum từ trang phát hành của GitHub
+
+# Thông tin hệ thống
+runner_user: "github-runner"
+runner_dir: "/opt/actions-runner"
+
+# Cấu hình kết nối với GitHub

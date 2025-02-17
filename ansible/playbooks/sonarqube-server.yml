@@ -1,0 +1,8 @@
+- name: Install SonarQube Server
+  hosts: sonarqube-server
+  become: yes
+  roles:
+    - teleport
+    - docker
+    - portainer-agent
+    - sonarqube

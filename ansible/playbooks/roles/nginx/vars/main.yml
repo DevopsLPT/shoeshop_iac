@@ -1,0 +1,22 @@
+sonarqube_domain: "sonarqube.lptdevops.website"
+sonarqube_host: "http://10.0.2.3:9000"
+
+portainer_domain: "portainer.lptdevops.website"
+portainer_host: "http://10.0.2.4:9000"
+
+jfrog_domain: "jfrog.lptdevops.website"
+jfrog_host: "http://10.0.2.5:8082"
+
+harbor_domain: "harbor.lptdevops.website"
+harbor_host: "https://10.0.2.5:443"
+
+vault_domain: "vault.lptdevops.website"
+vault_host: "http://10.0.2.6:8200"
+
+be_domain: "shoeshopbe.lptdevops.website"
+be_host: "http://10.0.2.8:5214"
+
+fe_domain: "shoeshop.lptdevops.website"
+fe_host: "http://10.0.2.7:3000"
+
+email: "thuanlephuc152@gmail.com"

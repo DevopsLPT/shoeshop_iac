@@ -1,0 +1,9 @@
+/terraform/*.json
+
+/terraform/*.pub
+
+/terraform/*.tfstate
+
+/terraform/*.hcl
+
+/terraform/*.terraform

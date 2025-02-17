@@ -1,0 +1,77 @@
+- name: Create user for GitHub Actions Runner
+  user:
+    name: "{{ runner_user }}"
+    shell: /bin/bash
+    home: "{{ runner_dir }}"
+    createhome: yes
+
+- name: Create actions-runner directory
+  file:
+    path: "{{ runner_dir }}"
+    state: directory
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+    mode: '0755'
+
+- name: Download GitHub Actions Runner
+  get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+    dest: "{{ runner_dir }}/actions-runner-linux-x64.tar.gz"
+    mode: '0644'
+    
+- name: Verify checksum
+  shell: "echo '{{ runner_checksum }}  {{ runner_dir }}/actions-runner-linux-x64.tar.gz' | shasum -a 256 -c"
+  args:
+    executable: /bin/bash
+  register: checksum_result
+  failed_when: "'OK' not in checksum_result.stdout"
+
+- name: Extract GitHub Actions Runner
+  unarchive:
+    src: "{{ runner_dir }}/actions-runner-linux-x64.tar.gz"
+    dest: "{{ runner_dir }}"
+    remote_src: yes
+    owner: "{{ runner_user }}"
+    group: "{{ runner_user }}"
+
+- name: Configure GitHub Actions Runner
+  command: "./config.sh --url {{ github_repo_url }} --token {{ runner_token }} --labels {{ label }} --unattended"
+  args:
+    chdir: "{{ runner_dir }}"
+  become: yes
+  become_user: "{{ runner_user }}"
+
+
+- name: Create systemd service for GitHub Actions Runner
+  copy:
+    dest: "/etc/systemd/system/github-runner.service"
+    content: |
+      [Unit]
+      Description=GitHub Actions Runner
+      After=network.target
+
+      [Service]
+      User={{ runner_user }}
+      WorkingDirectory={{ runner_dir }}
+      ExecStart={{ runner_dir }}/run.sh
+      Restart=always
+      RestartSec=5s
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Restart GitHub Runner
+
+- name: Reload systemd daemon
+  command: systemctl daemon-reload
+
+- name: Enable GitHub Actions Runner service at boot
+  systemd:
+    name: github-runner
+    enabled: yes
+    state: started
+
+- name: Add 'github-runner' user to 'docker' group
+  user:
+    name: github-runner
+    groups: docker
+    append: yes

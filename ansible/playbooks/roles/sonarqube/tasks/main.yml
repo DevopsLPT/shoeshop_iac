@@ -1,0 +1,73 @@
+---
+- name: Kill and remove sonarqube container if it's running
+  command: docker rm -f {{ sonarqube_container_name }}
+  ignore_errors: yes
+
+- name: Create directory for Sonarqube project
+  file:
+    path: /tools/sonarqube
+    state: directory
+    mode: '0777'
+
+- name: Create directory for postgres db
+  file:
+    path: /data/postgres/postgresql
+    state: directory
+    mode: '0777'
+
+- name: Create directory for postgres data
+  file:
+    path: /data/postgres/postgresql_data
+    state: directory
+    mode: '0777'
+
+- name: Create directory for sonarqube data
+  file:
+    path: /data/sonarqube/sonarqube_data
+    state: directory
+    mode: '0777'
+
+- name: Create directory for sonarqube extentions
+  file:
+    path: /data/sonarqube/sonarqube_extensions
+    state: directory
+    mode: '0777'
+
+- name: Copy docker-compose.yml for sonarqube to target machine
+  template:
+    src: docker-compose.yml.j2  
+    dest: /tools/sonarqube/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create docker network if it does not exist
+  docker_network:
+    name: PrviNetwork
+    state: present
+  ignore_errors: true
+
+- name: Set vm.max_map_count for Elasticsearch
+  ansible.builtin.command: sysctl -w vm.max_map_count=262144
+
+- name: Persist vm.max_map_count setting
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    line: "vm.max_map_count=262144"
+    create: yes
+
+
+- name: Run Docker Compose to deploy sonarqube
+  command:
+    cmd: "docker-compose -f /tools/sonarqube/docker-compose.yml up -d"
+    chdir: /tools/sonarqube
+
+- name: Check if sonarqube container is running
+  command: docker ps -q -f name=sonarqube
+  register: sonarqube_container
+  failed_when: sonarqube_container.stdout == ""
+  changed_when: false
+
+- name: Display sonarqube container status
+  debug:
+    msg: "sonarqube container is up and running."

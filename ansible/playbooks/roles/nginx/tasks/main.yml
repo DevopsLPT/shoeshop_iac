@@ -1,0 +1,209 @@
+- name: Update package list
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Install Certbot
+  ansible.builtin.apt:
+    name: certbot
+    state: present
+    update_cache: yes
+
+- name: Stop Nginx before issuing SSL
+  ansible.builtin.systemd:
+    name: nginx
+    state: stopped
+  ignore_errors: true
+
+# # nexus Certificate
+
+# - name: Obtain Nexus SSL Certificate
+#   ansible.builtin.command:
+#     cmd: certbot certonly --staging --standalone -d {{ nexus_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+#   register: certbot_result
+#   changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+# - name: Copy nexus.conf to Nginx conf.d
+#   template:
+#     src: nexus.conf.j2  
+#     dest: /etc/nginx/conf.d/nexus.conf
+#     owner: root
+#     group: root
+#     mode: '0644'
+
+# - name: Replace proxy address in Nginx config
+#   ansible.builtin.replace:
+#     path: /etc/nginx/conf.d/nexus.conf
+#     regexp: 'proxy_pass https://192.168.100.100:8081;'
+#     replace: "proxy_pass {{ nexus_host }};"
+#   notify:
+#     - Reload Nginx
+
+# vault Certificate
+
+- name: Obtain Vault SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ vault_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy vault.conf to Nginx conf.d
+  template:
+    src: vault.conf.j2  
+    dest: /etc/nginx/conf.d/vault.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/vault.conf
+    regexp: 'proxy_pass https://192.168.100.100:8200;'
+    replace: "proxy_pass {{ vault_host }};"
+
+
+# sonarqube Certificate
+
+- name: Obtain Sonarqube SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ sonarqube_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy sonarqube.conf to Nginx conf.d
+  template:
+    src: sonarqube.conf.j2  
+    dest: /etc/nginx/conf.d/sonarqube.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/sonarqube.conf
+    regexp: 'proxy_pass https://192.168.100.100:9000;'
+    replace: "proxy_pass {{ sonarqube_host }};"
+
+
+# portainer Certificate
+
+- name: Obtain Portainer SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ portainer_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy portainer.conf to Nginx conf.d
+  template:
+    src: portainer.conf.j2  
+    dest: /etc/nginx/conf.d/portainer.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/portainer.conf
+    regexp: 'proxy_pass https://192.168.100.100:9000;'
+    replace: "proxy_pass {{ portainer_host }};"
+
+
+# jfrog Certificate
+
+- name: Obtain Jfrog SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ jfrog_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy jfrog.conf to Nginx conf.d
+  template:
+    src: jfrog.conf.j2  
+    dest: /etc/nginx/conf.d/jfrog.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/jfrog.conf
+    regexp: 'proxy_pass https://192.168.100.100:8082;'
+    replace: "proxy_pass {{ jfrog_host }};"
+
+
+# harbor Certificate
+
+- name: Obtain Jfrog SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ harbor_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy harbor.conf to Nginx conf.d
+  template:
+    src: harbor.conf.j2  
+    dest: /etc/nginx/conf.d/harbor.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/harbor.conf
+    regexp: 'proxy_pass https://192.168.100.100:443;'
+    replace: "proxy_pass {{ harbor_host }};"
+
+# be Certificate
+
+- name: Obtain BE SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ be_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy be.conf to Nginx conf.d
+  template:
+    src: be.conf.j2  
+    dest: /etc/nginx/conf.d/be.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/be.conf
+    regexp: 'proxy_pass https://192.168.100.100:5214;'
+    replace: "proxy_pass {{ be_host }};"
+
+# fe Certificate
+
+- name: Obtain FE SSL Certificate
+  ansible.builtin.command:
+    cmd: certbot certonly --staging --standalone -d {{ fe_domain }} --preferred-challenges http --agree-tos -m {{ email }} --keep-until-expiring
+  register: certbot_result
+  changed_when: "'Certificate not yet due for renewal' not in certbot_result.stdout"
+
+- name: Copy fe.conf to Nginx conf.d
+  template:
+    src: fe.conf.j2  
+    dest: /etc/nginx/conf.d/fe.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Replace proxy address in Nginx config
+  ansible.builtin.replace:
+    path: /etc/nginx/conf.d/fe.conf
+    regexp: 'proxy_pass https://192.168.100.100:3000;'
+    replace: "proxy_pass {{ fe_host }};"
+
+
+- name: Start Nginx after SSL issuance
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: yes

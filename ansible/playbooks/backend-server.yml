@@ -1,0 +1,13 @@
+- name: Install Backend Server
+  hosts: backend-server
+  become: yes
+  roles:
+    - teleport
+    - docker
+    - portainer-agent
+    - role: github-runner
+      vars:
+        github_repo_url: "https://github.com/DevopsLPT"
+        runner_token: "A4TCJZ6ZDBORXWVBZOCWSZLHVC7PS"   
+        label: "shoeshop-backend"
+        
