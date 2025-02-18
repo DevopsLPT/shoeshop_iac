@@ -3,6 +3,8 @@
 ## Overview
 This project implements a complete CI/CD pipeline using GitHub Actions for a 3-tier application. The infrastructure is provisioned on Google Cloud Platform (GCP) using Terraform and Ansible, ensuring automation and security in the deployment process.
 
+![Terraform](images/iac.jpg)
+
 ## Technologies Used
 - **CI/CD**: GitHub Actions, SonarQube, Trivi
 - **Cloud Infrastructure**: GCP (VM, VPC)
